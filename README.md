@@ -26,7 +26,7 @@ kill -9 12345          # 再手动杀掉
 
 ## 功能
 
-- **端口搜索** — 输入端口号即可查询所有占用该端口的进程
+- **多端口搜索** — 支持同时输入多个端口号（空格、逗号、分号分隔），并发查询合并去重
 - **详细信息** — 展示进程名、PID、用户、协议、端口、连接状态、连接信息等完整字段
 - **单个终止** — 对单个进程点击「终止」按钮，二次确认后终止
 - **批量终止** — 勾选多个进程，一键批量终止
@@ -49,6 +49,7 @@ kill -9 12345          # 再手动杀掉
 kill-port/
 ├── main.go              # Wails 入口，窗口配置
 ├── app.go               # Go 后端核心：端口查询 & 进程终止
+├── Makefile             # 构建命令（dev / build / dmg / clean）
 ├── frontend/
 │   ├── src/
 │   │   ├── App.jsx      # React 主页面（Semi Table + 搜索 + 操作）
@@ -72,6 +73,9 @@ kill-port/
 ```bash
 # 安装 Wails CLI（如果没有的话）
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+# 打包 DMG 需要 create-dmg（可选）
+brew install create-dmg
 ```
 
 ### 开发
@@ -81,26 +85,32 @@ git clone git@github.com:advance-hub/kill-port.git
 cd kill-port
 
 # 开发模式（热更新）
-wails dev
+make dev
 ```
 
 ### 构建
 
 ```bash
-# 打包为 macOS .app
-wails build
+# 构建 macOS .app
+make build
 
-# 产物在 build/bin/kill-port.app
+# 构建 .app 并打包为 .dmg 安装包（需要 brew install create-dmg）
+make dmg
+
+# 清理构建产物
+make clean
 ```
 
-构建完成后双击 `build/bin/kill-port.app` 即可运行。
+构建产物：
+- `.app` — `build/bin/kill-port.app`，双击即可运行
+- `.dmg` — `build/bin/Kill Port.dmg`，打开后拖入 Applications 安装
 
 ## 原理
 
-1. 用户输入端口号
-2. Go 后端执行 `lsof -i :端口 -P -n`，解析输出为结构化数据
+1. 用户输入一个或多个端口号（支持空格、逗号、分号分隔）
+2. Go 后端并发执行 `lsof -i :端口 -P -n`，解析输出为结构化数据，合并去重
 3. 前端通过 Wails 绑定调用 Go 方法，展示在 Semi Design Table 中
-4. 用户选择进程后，Go 后端通过 `syscall.Kill` 发送信号终止进程
+4. 用户选择进程后，Go 后端通过 `syscall.Kill` 发送信号终止进程（先 SIGTERM，失败再 SIGKILL）
 5. 终止后自动刷新列表
 
 ## License
