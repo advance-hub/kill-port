@@ -73,6 +73,81 @@ func (a *App) SearchPort(port string) ([]ProcessInfo, error) {
 	return parseLsofOutput(string(output), port), nil
 }
 
+// SearchPorts searches for processes using multiple ports, merges and deduplicates results
+func (a *App) SearchPorts(portsStr string) ([]ProcessInfo, error) {
+	// Split by comma, space, semicolon, Chinese comma
+	portsStr = strings.TrimSpace(portsStr)
+	if portsStr == "" {
+		return nil, fmt.Errorf("port numbers cannot be empty")
+	}
+
+	// Normalize separators
+	for _, sep := range []string{",", ";", " ", "\t"} {
+		portsStr = strings.ReplaceAll(portsStr, sep, ",")
+	}
+
+	parts := strings.Split(portsStr, ",")
+	var ports []string
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			continue
+		}
+		if _, err := strconv.Atoi(p); err != nil {
+			return nil, fmt.Errorf("invalid port number: %s", p)
+		}
+		ports = append(ports, p)
+	}
+
+	if len(ports) == 0 {
+		return nil, fmt.Errorf("no valid port numbers provided")
+	}
+
+	// Deduplicate ports
+	seen := make(map[string]bool)
+	var uniquePorts []string
+	for _, p := range ports {
+		if !seen[p] {
+			seen[p] = true
+			uniquePorts = append(uniquePorts, p)
+		}
+	}
+
+	// Search all ports concurrently
+	type result struct {
+		processes []ProcessInfo
+		err       error
+	}
+	ch := make(chan result, len(uniquePorts))
+
+	for _, port := range uniquePorts {
+		go func(p string) {
+			procs, err := a.SearchPort(p)
+			ch <- result{processes: procs, err: err}
+		}(port)
+	}
+
+	// Collect results and deduplicate by PID+Name
+	var allProcesses []ProcessInfo
+	seenKey := make(map[string]bool)
+
+	for range uniquePorts {
+		r := <-ch
+		if r.err != nil {
+			continue
+		}
+		for _, proc := range r.processes {
+			key := proc.PID + "|" + proc.Name + "|" + proc.State
+			if !seenKey[key] {
+				seenKey[key] = true
+				allProcesses = append(allProcesses, proc)
+			}
+		}
+	}
+
+	return allProcesses, nil
+}
+
 // SearchAllPorts searches all listening ports
 func (a *App) SearchAllPorts() ([]ProcessInfo, error) {
 	cmd := exec.Command("lsof", "-i", "-P", "-n", "-sTCP:LISTEN")

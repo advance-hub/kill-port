@@ -17,3 +17,7 @@ export function SearchAllPorts() {
 export function SearchPort(arg1) {
   return window['go']['main']['App']['SearchPort'](arg1);
 }
+
+export function SearchPorts(arg1) {
+  return window['go']['main']['App']['SearchPorts'](arg1);
+}

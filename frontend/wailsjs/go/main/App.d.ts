@@ -9,3 +9,5 @@ export function KillProcesses(arg1:Array<string>):Promise<Array<main.KillResult>
 export function SearchAllPorts():Promise<Array<main.ProcessInfo>>;
 
 export function SearchPort(arg1:string):Promise<Array<main.ProcessInfo>>;
+
+export function SearchPorts(arg1:string):Promise<Array<main.ProcessInfo>>;

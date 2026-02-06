@@ -7,7 +7,7 @@ import {
   IconSearch, IconDelete, IconRefresh,
   IconStop, IconInfoCircle,
 } from '@douyinfe/semi-icons';
-import { SearchPort, KillProcesses } from '../wailsjs/go/main/App';
+import { SearchPorts, KillProcesses } from '../wailsjs/go/main/App';
 import './App.scss';
 
 const { Title, Text } = Typography;
@@ -19,6 +19,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [killingPids, setKillingPids] = useState(new Set());
+  const [searchedPorts, setSearchedPorts] = useState([]);
 
   // Unique PIDs from selection
   const selectedPids = useMemo(() => {
@@ -35,6 +36,15 @@ function App() {
     return [...pids];
   }, [selectedRowKeys, processes]);
 
+  // Parse port input: supports "8080", "8080 3000", "8080,3000,5432"
+  const parsePorts = useCallback((input) => {
+    return input
+      .replace(/[,;，；\s]+/g, ' ')
+      .trim()
+      .split(' ')
+      .filter(p => p && /^\d+$/.test(p));
+  }, []);
+
   // Search
   const handleSearch = useCallback(async () => {
     const trimmed = port.trim();
@@ -42,20 +52,23 @@ function App() {
       Toast.warning({ content: '请输入端口号', duration: 2 });
       return;
     }
-    if (!/^\d+$/.test(trimmed)) {
-      Toast.warning({ content: '端口号必须为数字', duration: 2 });
+
+    const ports = parsePorts(trimmed);
+    if (ports.length === 0) {
+      Toast.warning({ content: '请输入有效的端口号（纯数字）', duration: 2 });
       return;
     }
 
     setLoading(true);
     setSearched(true);
     setSelectedRowKeys([]);
+    setSearchedPorts(ports);
 
     try {
-      const result = await SearchPort(trimmed);
+      const result = await SearchPorts(trimmed);
       setProcesses(result || []);
       if (!result || result.length === 0) {
-        Toast.info({ content: `端口 ${trimmed} 无进程占用`, duration: 2 });
+        Toast.info({ content: `端口 ${ports.join(', ')} 无进程占用`, duration: 2 });
       }
     } catch (err) {
       Toast.error({ content: `查询失败: ${err}`, duration: 3 });
@@ -63,7 +76,7 @@ function App() {
     } finally {
       setLoading(false);
     }
-  }, [port]);
+  }, [port, parsePorts]);
 
   // Kill selected
   const handleKillSelected = useCallback(async () => {
@@ -268,7 +281,7 @@ function App() {
         <div className="search-bar">
           <Input
             prefix={<IconSearch />}
-            placeholder="输入端口号，如 8080、3000、5432"
+            placeholder="输入端口号，多个用空格或逗号分隔，如 8080 3000,5432"
             value={port}
             onChange={setPort}
             onKeyDown={handleKeyDown}
@@ -297,7 +310,12 @@ function App() {
           {processes.length > 0 && (
             <div className="toolbar">
               <div className="toolbar-left">
-                <Text type="tertiary">
+                <Space align="center" spacing={4}>
+                  {searchedPorts.map(p => (
+                    <Tag key={p} size="small" color="blue" style={{ fontFamily: 'monospace' }}>{p}</Tag>
+                  ))}
+                </Space>
+                <Text type="tertiary" style={{ marginLeft: 8 }}>
                   共 <Text strong type="primary">{processes.length}</Text> 条记录
                   {selectedRowKeys.length > 0 && (
                     <Text>，已选 <Text strong type="warning">{selectedRowKeys.length}</Text> 条</Text>
@@ -347,7 +365,7 @@ function App() {
               <Empty
                 image={<IconInfoCircle style={{ fontSize: 48, color: 'var(--semi-color-text-2)' }} />}
                 title="未找到进程"
-                description={`端口 ${port} 当前没有进程占用`}
+                description={`端口 ${searchedPorts.join(', ')} 当前没有进程占用`}
               />
             </div>
           ) : (
@@ -380,7 +398,7 @@ function App() {
               端口进程查询
             </Title>
             <Text type="tertiary" style={{ marginBottom: 24 }}>
-              输入端口号，查看占用进程并一键终止
+              输入端口号查看占用进程并一键终止，支持多个端口同时查询
             </Text>
           </div>
         </div>
