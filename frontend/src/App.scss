@@ -1,0 +1,331 @@
+// ============================================
+// Kill Port - 亮色企业级主题
+// ============================================
+
+// --- Reset ---
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: #f7f8fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// --- Layout ---
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: #f7f8fa;
+}
+
+// --- Titlebar ---
+.titlebar {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  flex-shrink: 0;
+  -webkit-app-region: drag;
+  padding: 0 20px;
+  padding-left: 80px; // macOS 红绿灯按钮空间
+}
+
+.titlebar-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  -webkit-app-region: drag;
+}
+
+.titlebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .semi-typography {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+}
+
+// --- Search ---
+.search-section {
+  flex-shrink: 0;
+  background: #fff;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.search-bar {
+  display: flex;
+  gap: 12px;
+  max-width: 100%;
+
+  .search-input {
+    flex: 1;
+
+    .semi-input-wrapper {
+      border-radius: 8px;
+      background: #f5f5f5;
+      border: 1px solid #e8e8e8;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: #bbb;
+        background: #fff;
+      }
+
+      &:focus-within,
+      &.semi-input-wrapper-focus {
+        background: #fff;
+        border-color: var(--semi-color-primary);
+        box-shadow: 0 0 0 3px rgba(var(--semi-blue-5), 0.1);
+      }
+
+      .semi-input {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .search-btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0 28px;
+    box-shadow: 0 2px 6px rgba(var(--semi-blue-5), 0.2);
+    transition: all 0.2s;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(var(--semi-blue-5), 0.3);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 4px rgba(var(--semi-blue-5), 0.2);
+    }
+  }
+}
+
+// --- Results ---
+.result-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+// --- Toolbar ---
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// --- Center Content ---
+.center-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 60px 20px;
+  background: #fff;
+  margin: 12px 0;
+  border-radius: 8px;
+}
+
+// --- Table ---
+.table-section {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+  min-height: 0;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+.process-table {
+  .semi-table-wrapper {
+    border: none;
+  }
+
+  .semi-table-thead > tr > th {
+    background: #fafbfc;
+    font-weight: 600;
+    font-size: 13px;
+    color: #333;
+    border-bottom: 1px solid #e8e8e8;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .semi-table-tbody > tr > td {
+    font-size: 13px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .semi-table-tbody > tr {
+    transition: background 0.15s;
+
+    &:hover > td {
+      background: #f0f7ff !important;
+    }
+  }
+
+  // 选中行高亮
+  .semi-table-row-selected > td {
+    background: #e8f3ff !important;
+  }
+
+  // Tag 内等宽字体
+  .semi-tag {
+    font-size: 12px;
+  }
+}
+
+// --- Welcome ---
+.welcome {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.welcome-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #fff;
+  border-radius: 16px;
+  padding: 48px 60px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  max-width: 480px;
+  width: 100%;
+}
+
+.welcome-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e8f3ff 0%, #d6e8ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+
+  .example-tag {
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+    font-size: 13px;
+    transition: all 0.2s;
+    background: #fafbfc;
+
+    &:hover {
+      border-color: var(--semi-color-primary);
+      color: var(--semi-color-primary);
+      background: #e8f3ff;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(var(--semi-blue-5), 0.15);
+    }
+  }
+}
+
+// --- Animations ---
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-section {
+  animation: fadeIn 0.3s ease;
+}
+
+.welcome-card {
+  animation: fadeIn 0.4s ease;
+}
+
+// --- Semi 微调 ---
+
+// Popconfirm 危险操作按钮
+.semi-popconfirm {
+  .semi-popconfirm-footer {
+    .semi-button-danger {
+      font-weight: 500;
+    }
+  }
+}
+
+// Toast
+.semi-toast-wrapper {
+  .semi-toast-content {
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+}
+
+// 全局 user-select
+body {
+  user-select: none;
+}
+
+.semi-table-tbody,
+.semi-tag,
+.semi-input .semi-input-default {
+  user-select: text;
+}

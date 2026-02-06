@@ -1,0 +1,13 @@
+build/bin
+/kill-port
+node_modules
+frontend/dist
+frontend/package.json.md5
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+.DS_Store
